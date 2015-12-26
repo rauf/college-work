@@ -101,15 +101,6 @@ INNER JOIN lab_13BCS0003 AS lab ON allotment.mach_no = lab.mach_no;
 
 3. 
 
-SELECT days_of_week,count(*) FROM allotment_13BCS0003 GROUP BY days_of_week;
-
-
-SELECT
-days_of_week,
-count(*) 
-FROM allotment_13BCS0003 as allotment
-INNER JOIN (SELECT mach_no FROM lab_13BCS0003 GROUP BY lab_no)
-
 
 SELECT 
 days_of_week,
