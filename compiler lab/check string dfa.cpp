@@ -5,23 +5,22 @@
 
 #define MAX 10
 
-void parseFile(int **arr, int *initial, int *final, int *states, int *cols) {
+void parseFile(int **arr, int *initial, int *final, int *finalStates, int *states, int *cols) {
 
 	std::ifstream file("dfa.txt");
 	char line[100];
 	*initial = 0;
-	*final = 0;
 	int num = 0;
 	int row = 0;
 	int col = 0;
 	int counter = 0;
+	*finalStates = 0;
 
 	while(file.getline(line, 100) != NULL) {
 		
 		col = 0;
 
 		if(counter == 0) *initial = atoi(line);
-		else if(counter == 1) *final = atoi(line);
 		else {
 			int length = strlen(line);
 
@@ -31,6 +30,13 @@ void parseFile(int **arr, int *initial, int *final, int *states, int *cols) {
 					num = num * 10 + (line[i] - '0');
 				}
 				else if(line[i] == ' '  || line[i] == '\0') {
+		
+					if(counter == 1) {
+						final[col++] = num;
+						*finalStates = col;
+						num = 0;
+						continue;
+					}
 					arr[row][col++] = num;
 					num = 0;
 				}
@@ -41,7 +47,7 @@ void parseFile(int **arr, int *initial, int *final, int *states, int *cols) {
 					while(line[i] != ' ') i++;
 				}
 			}
-			row++;
+			if(counter != 1) row++;
 		}
 		counter++;
 	}
@@ -49,7 +55,7 @@ void parseFile(int **arr, int *initial, int *final, int *states, int *cols) {
 	*cols = col;
 }
 
-bool checkString(char *str, int **arr, int initial, int final, int states) {
+bool checkString(char *str, int **arr, int initial, int *final, int finalStates, int states) {
 
 	int current = initial;
 
@@ -65,8 +71,12 @@ bool checkString(char *str, int **arr, int initial, int final, int states) {
 		current = arr[current][curr_input];	
 	}
 
-	if(current != final) return false;
-	return true;
+	for (int i = 0; i < finalStates; ++i) {
+		if(current == final[i]);
+			return true;
+	}
+	
+	return false;
 }
 
 void printArr(int **arr, int rows, int cols) {
@@ -84,16 +94,19 @@ void printArr(int **arr, int rows, int cols) {
 int main(){
 
 	int initial;
-	int final;
+	int *final;
 	int **arr;
 	int states;
 	int num;
+	int finalStates;
 
 	arr = new int*[MAX];
 	for (int i = 0; i < MAX; ++i)
 		arr[i] = new int;
 	
-	parseFile(arr, &initial, &final, &states, &num);
+	final = new int[MAX];
+
+	parseFile(arr, &initial, final, &finalStates, &states, &num);
 	printArr(arr, states, num);
 
 	while(true){
@@ -101,7 +114,7 @@ int main(){
 		std::cout << "\nEnter string: ";
 		char str[100];
 		std::cin.getline(str, 100);	
-		if(checkString(str, arr, initial, final, states))
+		if(checkString(str, arr, initial, final, finalStates, states))
 			std::cout << "\nString accepted";
 		else std::cout << "\nString rejected";
 	}	
